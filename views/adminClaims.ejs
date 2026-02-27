@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Claims - GigSetu</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      color: white;
+      min-height: 100vh;
+    }
+
+    .navbar {
+      backdrop-filter: blur(12px);
+      background: rgba(255,255,255,0.08);
+    }
+
+    .glass-card {
+      background: rgba(255,255,255,0.08);
+      border-radius: 20px;
+      padding: 24px;
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.12);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+      margin-bottom: 20px;
+      transition: 0.3s;
+    }
+
+    .glass-card:hover {
+      transform: translateY(-4px);
+      background: rgba(255,255,255,0.12);
+    }
+
+    .status-badge {
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: capitalize;
+    }
+
+    .pending { background: #f59e0b; }
+    .approved { background: #22c55e; }
+    .rejected { background: #ef4444; }
+
+    .btn-approve {
+      background: linear-gradient(45deg, #22c55e, #16a34a);
+      border: none;
+      color: white;
+    }
+
+    .btn-reject {
+      background: linear-gradient(45deg, #ef4444, #b91c1c);
+      border: none;
+      color: white;
+    }
+
+    .footer {
+      background: rgba(0,0,0,0.5);
+      padding: 24px;
+      text-align: center;
+      margin-top: 60px;
+      opacity: 0.85;
+    }
+  </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark">
+  <div class="container">
+    <a class="navbar-brand fw-bold" href="/admin/dashboard">GigSetu Admin</a>
+    <div>
+      <a href="/admin/dashboard" class="btn btn-outline-light btn-sm me-2">Dashboard</a>
+      <a href="/logout" class="btn btn-outline-danger btn-sm">Logout</a>
+    </div>
+  </div>
+</nav>
+
+<div class="container py-5">
+
+  <h2 class="fw-bold mb-4">🧾 Insurance Claims (Admin Panel)</h2>
+  <p class="opacity-75 mb-4">
+    Review, approve, or reject insurance claims submitted by workers.
+  </p>
+
+  <% if (claims.length === 0) { %>
+    <div class="glass-card text-center">
+      <p class="mb-0">No claims submitted yet.</p>
+    </div>
+  <% } else { %>
+
+    <% claims.forEach(claim => { %>
+      <div class="glass-card">
+
+        <div class="d-flex justify-content-between align-items-start flex-wrap">
+          <div>
+            <h5 class="mb-1"><%= claim.user.name %></h5>
+            <p class="mb-1 opacity-75">Policy: <strong><%= claim.policyType %></strong></p>
+            <p class="mb-1 opacity-75">Reason: <%= claim.reason %></p>
+            <small class="opacity-50">
+              Submitted on <%= new Date(claim.createdAt).toDateString() %>
+            </small>
+          </div>
+
+          <div class="text-end mt-3 mt-md-0">
+            <span class="status-badge <%= claim.status %>">
+              <%= claim.status %>
+            </span>
+          </div>
+        </div>
+
+        <% if (claim.status === "pending") { %>
+          <div class="mt-3 d-flex gap-2">
+            <form method="POST" action="/insurance/admin/claims/approve/<%= claim._id %>">
+              <button class="btn btn-approve btn-sm">Approve & Credit</button>
+            </form>
+            <form method="POST" action="/insurance/admin/claims/reject/<%= claim._id %>">
+              <button class="btn btn-reject btn-sm">Reject</button>
+            </form>
+          </div>
+        <% } %>
+
+        <% if (claim.status === "approved") { %>
+          <p class="mt-2 text-success">
+            💰 Payout credited: ₹<%= claim.payoutAmount || 0 %>
+          </p>
+        <% } %>
+
+      </div>
+    <% }) %>
+
+  <% } %>
+
+  <a href="/admin/dashboard" class="btn btn-outline-light mt-4">⬅ Back to Admin Dashboard</a>
+
+</div>
+
+<div class="footer">
+  <p>© 2026 GigSetu | Admin Insurance Operations</p>
+</div>
+
+</body>
+</html>

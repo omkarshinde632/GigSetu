@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trust & Safety | GigSetu</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            color: #ffffff;
+            min-height: 100vh;
+            padding: 50px 0;
+        }
+
+        .back-nav {
+            color: #00c6ff;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: 0.3s;
+            display: inline-flex;
+            align-items: center;
+        }
+        .back-nav:hover { opacity: 0.7; transform: translateX(-5px); }
+
+        .v-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 30px;
+            margin-bottom: 25px;
+            position: relative;
+            overflow: hidden;
+            transition: 0.3s;
+        }
+        .v-card:hover {
+            border-color: rgba(0, 198, 255, 0.4);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .platform-tag {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .eligibility-strip {
+            position: absolute;
+            top: 0;
+            right: 0;
+            padding: 8px 25px;
+            font-size: 0.7rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            border-bottom-left-radius: 20px;
+        }
+        .eligible-yes { background: #2ed573; color: #000; box-shadow: 0 0 15px rgba(46, 213, 115, 0.3); }
+        .eligible-no { background: #ff4757; color: #fff; }
+
+        .doc-link {
+            display: flex;
+            align-items: center;
+            background: rgba(0, 198, 255, 0.1);
+            border: 1px solid rgba(0, 198, 255, 0.3);
+            color: #00c6ff;
+            padding: 12px 20px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+        .doc-link:hover {
+            background: #00c6ff;
+            color: #fff;
+        }
+
+        .btn-approve {
+            background: linear-gradient(45deg, #00c6ff, #0072ff);
+            border: none;
+            color: white;
+            padding: 10px 25px;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+        .btn-approve:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0, 198, 255, 0.4); }
+
+        .btn-reject {
+            background: transparent;
+            border: 1px solid rgba(255, 71, 87, 0.5);
+            color: #ff4757;
+            padding: 10px 25px;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+        .btn-reject:hover { background: #ff4757; color: white; }
+
+        .empty-state {
+            padding: 100px 0;
+            text-align: center;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="row mb-5">
+        <div class="col-md-8">
+            <a href="/admin/dashboard" class="back-nav mb-3">
+                <i class="bi bi-arrow-left me-2"></i> COMMAND CENTER
+            </a>
+            <h1 class="fw-bold">🛡️ Pending Verifications</h1>
+            <p class="opacity-50">Review and validate gig worker credentials for ecosystem entry.</p>
+        </div>
+    </div>
+
+    <% if (pendingUsers.length === 0) { %>
+        <div class="empty-state">
+            <i class="bi bi-shield-check" style="font-size: 4rem;"></i>
+            <h3 class="mt-3">Verification Queue Empty</h3>
+            <p>All users have been processed.</p>
+        </div>
+    <% } else { %>
+        
+        <div class="row">
+            <% pendingUsers.forEach(user => { %>
+                <div class="col-12">
+                    <div class="v-card">
+                        <div class="eligibility-strip <%= user.autoEligible ? 'eligible-yes' : 'eligible-no' %>">
+                            AI Score: <%= user.autoEligible ? 'VERIFIED' : 'FLAGGED' %>
+                        </div>
+
+                        <div class="row align-items-center">
+                            <div class="col-lg-4 mb-4 mb-lg-0">
+                                <span class="platform-tag mb-2 d-inline-block"><%= user.platform %></span>
+                                <h3 class="fw-bold mb-1"><%= user.name %></h3>
+                                <p class="opacity-50 mb-0"><i class="bi bi-envelope me-2"></i><%= user.email %></p>
+                            </div>
+
+                            <div class="col-lg-4 mb-4 mb-lg-0">
+                                <% if (user.documents) { %>
+                                    <a href="/uploads/<%= user.documents %>" target="_blank" class="doc-link">
+                                        <i class="bi bi-file-earmark-text fs-4 me-3"></i>
+                                        <div>
+                                            <span class="d-block small opacity-75">Document</span>
+                                            <span class="d-block">View Full Attachment</span>
+                                        </div>
+                                    </a>
+                                <% } else { %>
+                                    <div class="text-warning small">
+                                        <i class="bi bi-exclamation-triangle me-1"></i> No documents uploaded
+                                    </div>
+                                <% } %>
+                            </div>
+
+                            <div class="col-lg-4 text-lg-end">
+                                <div class="d-flex gap-2 justify-content-lg-end">
+                                    <form action="/admin/reject/<%= user._id %>" method="POST">
+                                        <button type="submit" class="btn-reject">
+                                            <i class="bi bi-x-lg me-1"></i> Reject
+                                        </button>
+                                    </form>
+
+                                    <form action="/admin/approve/<%= user._id %>" method="POST">
+                                        <button type="submit" class="btn-approve">
+                                            <i class="bi bi-check-lg me-1"></i> Approve User
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <% }) %>
+        </div>
+
+    <% } %>
+</div>
+
+</body>
+</html>

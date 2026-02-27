@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Risk Monitor | GigSetu</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            color: #ffffff;
+            min-height: 100vh;
+            padding: 40px 0;
+        }
+
+        .stat-box {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+            transition: 0.3s;
+        }
+        .stat-box:hover { background: rgba(255, 255, 255, 0.08); transform: translateY(-5px); }
+        .stat-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.6; }
+        .stat-value { font-size: 24px; font-weight: 700; display: block; color: #00c6ff; }
+
+        .section-title {
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            margin: 40px 0 20px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .risk-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            border-left: 4px solid #00c6ff;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: 0.3s;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            border-right: 1px solid rgba(255,255,255,0.05);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .risk-card.overdue { border-left-color: #ff4757; background: rgba(255, 71, 87, 0.05); }
+        .risk-card.default { border-left-color: #ff1f1f; background: rgba(0, 0, 0, 0.3); }
+
+        .gig-badge {
+            background: rgba(0, 198, 255, 0.2);
+            color: #00c6ff;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .btn-freeze {
+            background: #ff4757;
+            border: none;
+            color: white;
+            font-weight: 600;
+            border-radius: 8px;
+            padding: 8px 16px;
+            transition: 0.3s;
+        }
+        .btn-freeze:hover { background: #ff1f1f; box-shadow: 0 0 15px rgba(255, 71, 87, 0.4); }
+
+        .btn-unfreeze {
+            background: #2ed573;
+            border: none;
+            color: white;
+            font-weight: 600;
+            border-radius: 8px;
+            padding: 8px 16px;
+            transition: 0.3s;
+        }
+        .btn-unfreeze:hover { background: #1bc05d; box-shadow: 0 0 15px rgba(46, 213, 115, 0.4); }
+
+        .back-link { color: #00c6ff; text-decoration: none; transition: 0.3s; }
+        .back-link:hover { opacity: 0.8; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="d-flex justify-content-between align-items-end mb-4">
+        <div>
+            <a href="/admin/dashboard" class="back-link small mb-2 d-block text-uppercase fw-bold">
+                <i class="bi bi-chevron-left"></i> Core Dashboard
+            </a>
+            <h1 class="fw-bold mb-0">📊 Risk Monitoring</h1>
+        </div>
+        <div class="text-end">
+            <span class="badge bg-danger rounded-pill px-3 py-2">LIVE THREAT DETECTION</span>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-md-2 col-6">
+            <div class="stat-box">
+                <span class="stat-label">Active</span>
+                <span class="stat-value"><%= activeCount %></span>
+            </div>
+        </div>
+        <div class="col-md-2 col-6">
+            <div class="stat-box">
+                <span class="stat-label">Overdue</span>
+                <span class="stat-value text-warning"><%= overdueCount %></span>
+            </div>
+        </div>
+        <div class="col-md-2 col-6">
+            <div class="stat-box">
+                <span class="stat-label">Defaulted</span>
+                <span class="stat-value text-danger"><%= defaultedCount %></span>
+            </div>
+        </div>
+        <div class="col-md-2 col-6">
+            <div class="stat-box">
+                <span class="stat-label">High Risk</span>
+                <span class="stat-value text-danger"><%= highRiskCount %></span>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-box border-info">
+                <span class="stat-label">Total Outstanding</span>
+                <span class="stat-value text-white">₹<%= totalOutstanding %></span>
+            </div>
+        </div>
+    </div>
+
+    <h3 class="section-title text-warning"><i class="bi bi-exclamation-octagon"></i> Overdue Loans</h3>
+    <% if (overdueLoans.length === 0) { %>
+        <p class="opacity-50 ms-2">No overdue loans detected.</p>
+    <% } else { %>
+        <div class="row">
+            <% overdueLoans.forEach(loan => { 
+                const daysOverdue = Math.floor((new Date() - loan.nextDueDate) / (1000 * 60 * 60 * 24));
+            %>
+                <div class="col-md-6">
+                    <div class="risk-card overdue">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div>
+                                <h5 class="fw-bold mb-0"><%= loan.user.name %></h5>
+                                <span class="small opacity-50">Risk Tier: <%= loan.riskTier %></span>
+                            </div>
+                            <span class="gig-badge">GigScore: <%= loan.user.gigScore %></span>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <small class="d-block opacity-50">Remaining</small>
+                                <span class="fw-bold text-white">₹<%= loan.remainingBalance %></span>
+                            </div>
+                            <div class="col-6 text-end">
+                                <small class="d-block opacity-50">Days Overdue</small>
+                                <span class="fw-bold text-danger"><%= daysOverdue %> Days</span>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top border-white border-opacity-10">
+                            <% if (loan.user.accountFrozen) { %>
+                                <span class="text-danger small fw-bold"><i class="bi bi-snow2"></i> ACCOUNT FROZEN</span>
+                                <form method="POST" action="/admin/unfreeze/<%= loan.user._id %>">
+                                    <button class="btn-unfreeze">Unfreeze Access</button>
+                                </form>
+                            <% } else { %>
+                                <span class="text-warning small">Status: Active Access</span>
+                                <form method="POST" action="/admin/freeze/<%= loan.user._id %>">
+                                    <button class="btn-freeze">Freeze Account</button>
+                                </form>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+            <% }) %>
+        </div>
+    <% } %>
+
+    <h3 class="section-title text-danger"><i class="bi bi-shield-x"></i> Defaulted Assets</h3>
+    <% if (defaultedLoans.length === 0) { %>
+        <p class="opacity-50 ms-2">No defaulted loans on record.</p>
+    <% } else { %>
+        <div class="row">
+            <% defaultedLoans.forEach(loan => { %>
+                <div class="col-md-4">
+                    <div class="risk-card default">
+                        <h5 class="fw-bold mb-3"><%= loan.user.name %></h5>
+                        <p class="mb-1 small opacity-75">Principal: ₹<%= loan.amount %></p>
+                        <p class="mb-3 small text-danger fw-bold">Unrecovered: ₹<%= loan.remainingBalance %></p>
+                        
+                        <% if (loan.user.accountFrozen) { %>
+                            <div class="d-grid">
+                                <form method="POST" action="/admin/unfreeze/<%= loan.user._id %>">
+                                    <button class="btn-unfreeze w-100">Unlock User Profile</button>
+                                </form>
+                            </div>
+                        <% } else { %>
+                            <div class="d-grid">
+                                <form method="POST" action="/admin/freeze/<%= loan.user._id %>">
+                                    <button class="btn-freeze w-100">Execute Hard Freeze</button>
+                                </form>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+            <% }) %>
+        </div>
+    <% } %>
+</div>
+
+</body>
+</html>
