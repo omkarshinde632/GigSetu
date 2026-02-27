@@ -8,7 +8,6 @@ body {
     display: flex;
 }
 
-/* Sidebar */
 .sidebar {
     width: 240px;
     height: 100vh;
@@ -41,14 +40,12 @@ body {
     background-color: #2563eb;
 }
 
-/* Main Content */
 .main-content {
     margin-left: 240px;
     padding: 25px;
     width: 100%;
 }
 
-/* Topbar */
 .topbar {
     background: white;
     padding: 15px 20px;
@@ -62,7 +59,6 @@ body {
     margin-left: 15px;
 }
 
-/* Stat Cards */
 .stat-card {
     padding: 20px;
     border-radius: 12px;
