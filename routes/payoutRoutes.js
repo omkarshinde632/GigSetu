@@ -1,65 +1,117 @@
 const router = require("express").Router();
 const razorpay = require("../utils/razorpay");
 const WeeklyPayoutPlan = require("../models/WeeklyPayoutPlan");
+const LiquidityPool = require("../models/LiquidityPool");
+const User = require("../models/User");
 const { isAuthenticated } = require("../middleware/authMiddleware");
 
-// Create Razorpay Order
+const crypto = require("crypto");
+const path = require("path");
+
+const generateInvoice = require("../utils/invoiceGenerator");
+
+
 router.post("/create-order/:planId", isAuthenticated, async (req, res) => {
 
-  const plan = await WeeklyPayoutPlan.findById(req.params.planId);
+  try {
+    const plan = await WeeklyPayoutPlan.findById(req.params.planId);
 
-  if (!plan) return res.status(404).send("Plan not found");
+    if (!plan) return res.status(404).send("Plan not found");
 
-  const options = {
-    amount: plan.processingFee * 100, // in paise
-    currency: "INR",
-    receipt: "receipt_" + Date.now()
-  };
+    const options = {
+      amount: plan.processingFee * 100,
+      currency: "INR",
+      receipt: "receipt_" + Date.now()
+    };
 
-  const order = await razorpay.orders.create(options);
+    const order = await razorpay.orders.create(options);
 
-  res.json({
-    orderId: order.id,
-    amount: options.amount,
-    key: process.env.RAZORPAY_KEY_ID
-  });
+    res.json({
+      orderId: order.id,
+      amount: options.amount,
+      key: process.env.RAZORPAY_KEY_ID
+    });
+
+  } catch (err) {
+    console.log("Create Order Error:", err);
+    res.status(500).send("Error creating order");
+  }
 });
 
-const crypto = require("crypto");
-const LiquidityPool = require("../models/LiquidityPool");
 
 router.post("/verify-payment", isAuthenticated, async (req, res) => {
 
-  const { razorpay_order_id, razorpay_payment_id, razorpay_signature, planId } = req.body;
+  try {
 
-  const body = razorpay_order_id + "|" + razorpay_payment_id;
+    const {
+      razorpay_order_id,
+      razorpay_payment_id,
+      razorpay_signature,
+      planId
+    } = req.body;
 
-  const expectedSignature = crypto
-    .createHmac("sha256", process.env.RAZORPAY_SECRET)
-    .update(body.toString())
-    .digest("hex");
+    const body = razorpay_order_id + "|" + razorpay_payment_id;
 
-  if (expectedSignature !== razorpay_signature) {
-    return res.status(400).send("Payment verification failed");
+    const expectedSignature = crypto
+      .createHmac("sha256", process.env.RAZORPAY_SECRET)
+      .update(body.toString())
+      .digest("hex");
+
+    if (expectedSignature !== razorpay_signature) {
+      return res.status(400).send("Payment verification failed");
+    }
+
+    const plan = await WeeklyPayoutPlan.findById(planId);
+    if (!plan) return res.status(404).send("Plan not found");
+
+    const pool = await LiquidityPool.findOne();
+    if (!pool) return res.status(500).send("Liquidity pool missing");
+
+    if (pool.totalCapital < plan.weeklyAmount) {
+      return res.status(400).send("Insufficient liquidity pool");
+    }
+
+    plan.status = "active";
+    plan.startDate = new Date();
+    plan.paymentId = razorpay_payment_id;
+
+    pool.totalCapital -= plan.weeklyAmount;
+
+    const user = await User.findById(plan.user);
+    const invoiceData = generateInvoice(plan, user, razorpay_payment_id);
+
+    plan.invoiceId = invoiceData.invoiceId;
+    plan.invoiceFile = invoiceData.fileName;
+
+    await plan.save();
+    await pool.save();
+
+    res.json({ success: true });
+
+  } catch (err) {
+    console.log("Verify Payment Error:", err);
+    res.status(500).send("Payment verification error");
   }
-
-  const plan = await WeeklyPayoutPlan.findById(planId);
-  const pool = await LiquidityPool.findOne();
-
-  // Check liquidity
-  if (pool.totalCapital < plan.weeklyAmount) {
-    return res.send("Insufficient liquidity pool");
-  }
-
-  plan.status = "active";
-  plan.startDate = new Date();
-
-  pool.totalCapital -= plan.weeklyAmount;
-
-  await plan.save();
-  await pool.save();
-
-  res.json({ success: true });
 });
+
+router.get("/invoice/:planId", isAuthenticated, async (req, res) => {
+
+  try {
+
+    const plan = await WeeklyPayoutPlan.findById(req.params.planId);
+
+    if (!plan || !plan.invoiceFile) {
+      return res.send("Invoice not found");
+    }
+
+    const filePath = path.join(__dirname, "../invoices", plan.invoiceFile);
+
+    res.download(filePath);
+
+  } catch (err) {
+    res.status(500).send("Error downloading invoice");
+  }
+});
+
 
 module.exports = router;

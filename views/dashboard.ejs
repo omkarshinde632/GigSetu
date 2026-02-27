@@ -179,13 +179,16 @@
 </form>
 
 <% if (payoutPlans && payoutPlans.length > 0) { %>
+
   <h4>Your Payout Plans</h4>
 
   <% payoutPlans.forEach(plan => { %>
-    <div style="border:1px solid #ccc; padding:10px; margin-bottom:10px;">
-      <p>Weekly Amount: ₹<%= plan.weeklyAmount %></p>
-      <p>Daily Amount: ₹<%= plan.dailyAmount %></p>
-      <p>Status: <%= plan.status %></p>
+    
+    <div style="border:1px solid #ccc; padding:12px; margin-bottom:12px; border-radius:8px;">
+      
+      <p><strong>Weekly Amount:</strong> ₹<%= plan.weeklyAmount %></p>
+      <p><strong>Daily Amount:</strong> ₹<%= plan.dailyAmount %></p>
+      <p><strong>Status:</strong> <%= plan.status %></p>
 
       <% if (plan.status === "pending_payment") { %>
         <button onclick="payFee('<%= plan._id %>', <%= plan.processingFee %>)">
@@ -196,8 +199,17 @@
       <% if (plan.status === "active") { %>
         <p>Days Released: <%= plan.daysReleased %> / 7</p>
       <% } %>
+
+      <% if (plan.status === "active" && plan.invoiceFile) { %>
+        <a href="/payout/invoice/<%= plan._id %>">
+          <button>Download Invoice</button>
+        </a>
+      <% } %>
+
     </div>
+
   <% }) %>
+
 <% } %>
 
 

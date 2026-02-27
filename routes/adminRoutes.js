@@ -7,8 +7,6 @@ const Earning = require("../models/Earnings");
 const Loan = require("../models/Loan");
 const LiquidityPool = require("../models/LiquidityPool");
 
-
-// ================= ADMIN DASHBOARD =================
 router.get("/dashboard", isAuthenticated, isAdmin, async (req, res) => {
   try {
     const totalUsers = await User.countDocuments({ role: "worker" });
@@ -28,7 +26,6 @@ router.get("/dashboard", isAuthenticated, isAdmin, async (req, res) => {
     const users = await User.find();
     const totalWalletFunds = users.reduce((sum, u) => sum + u.walletBalance, 0);
 
-    // Liquidity pool safely inside route
     const pool = await LiquidityPool.findOne();
     const liquidity = pool ? pool.totalCapital : 0;
 
@@ -48,7 +45,6 @@ router.get("/dashboard", isAuthenticated, isAdmin, async (req, res) => {
 });
 
 
-// ================= VERIFICATIONS =================
 router.get("/verifications", isAuthenticated, isAdmin, async (req, res) => {
   const pendingUsers = await User.find({ verificationStatus: "pending" });
   res.render("adminVerifications", { pendingUsers });
@@ -81,7 +77,6 @@ router.post("/reject/:id", isAuthenticated, isAdmin, async (req, res) => {
 });
 
 
-// ================= USER MANAGEMENT =================
 router.get("/users", isAuthenticated, isAdmin, async (req, res) => {
   const users = await User.find({ role: "worker" });
   res.render("adminUsers", { users });
@@ -116,14 +111,11 @@ router.get("/users/:id", isAuthenticated, isAdmin, async (req, res) => {
 });
 
 
-// ================= FRAUD MONITORING =================
 router.get("/fraud", isAuthenticated, isAdmin, async (req, res) => {
   const users = await User.find({ gigScore: { $lt: 60 } });
   res.render("adminFraud", { users });
 });
 
-
-// ================= LOAN MANAGEMENT =================
 router.get("/loans", isAuthenticated, isAdmin, async (req, res) => {
   const loans = await Loan.find({ status: "pending" }).populate("user");
   res.render("adminLoans", { loans });
@@ -170,8 +162,6 @@ router.post("/loans/reject/:id", isAuthenticated, isAdmin, async (req, res) => {
   res.redirect("/admin/loans");
 });
 
-
-// ================= RISK PANEL =================
 router.get("/risk", isAuthenticated, isAdmin, async (req, res) => {
   const today = new Date();
 
@@ -203,7 +193,6 @@ router.get("/risk", isAuthenticated, isAdmin, async (req, res) => {
 });
 
 
-// ================= FREEZE / UNFREEZE =================
 router.post("/freeze/:userId", isAuthenticated, isAdmin, async (req, res) => {
   const user = await User.findById(req.params.userId);
   if (user) {

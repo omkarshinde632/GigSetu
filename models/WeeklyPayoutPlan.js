@@ -34,7 +34,21 @@ const weeklyPayoutPlanSchema = new mongoose.Schema({
     default: "pending_payment"
   },
 
-  startDate: Date
+  startDate: {
+    type: Date
+  },
+
+  paymentId: {
+    type: String
+  },
+
+  invoiceId: {
+    type: String
+  },
+
+  invoiceFile: {
+    type: String
+  }
 
 }, { timestamps: true });
 
