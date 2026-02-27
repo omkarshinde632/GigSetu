@@ -104,9 +104,13 @@
             background: rgba(255, 255, 255, 0.1);
             margin: 25px 0;
         }
+
     </style>
 </head>
 <body>
+
+    <%- include("partials/header", { title: "Home - GigSetu" }) %>
+
 
 <div class="login-card">
     <div class="brand-logo">GigSetu</div>
@@ -135,6 +139,9 @@
         <a href="/register" class="register-link">Create Account</a>
     </p>
 </div>
+<%- include("partials/footer") %>
+
+
 
 </body>
 </html>
