@@ -5,6 +5,8 @@ const LiquidityPool = require("../models/LiquidityPool");
 const User = require("../models/User");
 const { isAuthenticated } = require("../middleware/authMiddleware");
 
+const Loan = require("../models/Loan");
+
 const crypto = require("crypto");
 const path = require("path");
 
@@ -132,6 +134,81 @@ router.get("/invoice/:planId", isAuthenticated, async (req, res) => {
 
   } catch (err) {
     res.status(500).send("Error downloading invoice");
+  }
+});
+
+router.post("/emi/create-order/:loanId", isAuthenticated, async (req, res) => {
+  try {
+    const loan = await Loan.findById(req.params.loanId);
+
+    if (!loan) return res.status(404).send("Loan not found");
+
+    if (loan.status !== "active") {
+      return res.status(400).send("Loan not active");
+    }
+
+    const options = {
+      amount: loan.emiAmount * 100, // paise
+      currency: "INR",
+      receipt: "emi_" + Date.now()
+    };
+
+    const order = await razorpay.orders.create(options);
+
+    res.json({
+      orderId: order.id,
+      amount: options.amount,
+      key: process.env.RAZORPAY_KEY_ID
+    });
+
+  } catch (err) {
+    console.log("EMI Order Error:", err);
+    res.status(500).send("EMI order creation failed");
+  }
+});
+
+router.post("/emi/verify-payment", isAuthenticated, async (req, res) => {
+  try {
+    const {
+      razorpay_order_id,
+      razorpay_payment_id,
+      razorpay_signature,
+      loanId
+    } = req.body;
+
+    const body = razorpay_order_id + "|" + razorpay_payment_id;
+
+    const expectedSignature = crypto
+      .createHmac("sha256", process.env.RAZORPAY_SECRET)
+      .update(body)
+      .digest("hex");
+
+    if (expectedSignature !== razorpay_signature) {
+      return res.status(400).send("Payment verification failed");
+    }
+
+    const loan = await Loan.findById(loanId);
+    if (!loan) return res.status(404).send("Loan not found");
+
+    if (loan.status !== "active") {
+      return res.status(400).send("Loan not active");
+    }
+
+    loan.emisPaid += 1;
+    loan.remainingBalance -= loan.emiAmount;
+
+    if (loan.remainingBalance <= 0) {
+      loan.status = "completed";
+      loan.remainingBalance = 0;
+    }
+
+    await loan.save();
+
+    res.json({ success: true });
+
+  } catch (err) {
+    console.log("EMI Verify Error:", err);
+    res.status(500).send("EMI verification failed");
   }
 });
 

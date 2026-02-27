@@ -71,16 +71,9 @@
   </style>
 </head>
 <body>
+  <%- include("partials/adminHeader", { title: "Home - GigSetu" }) %>
 
-<nav class="navbar navbar-expand-lg navbar-dark">
-  <div class="container">
-    <a class="navbar-brand fw-bold" href="/admin/dashboard">GigSetu Admin</a>
-    <div>
-      <a href="/admin/dashboard" class="btn btn-outline-light btn-sm me-2">Dashboard</a>
-      <a href="/logout" class="btn btn-outline-danger btn-sm">Logout</a>
-    </div>
-  </div>
-</nav>
+
 
 <div class="container py-5">
 
@@ -141,9 +134,7 @@
 
 </div>
 
-<div class="footer">
-  <p>© 2026 GigSetu | Admin Insurance Operations</p>
-</div>
+<%- include("partials/footer") %>
 
 </body>
 </html>
