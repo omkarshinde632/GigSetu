@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account | GigSetu</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .register-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 30px;
+            padding: 40px;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.4);
+            text-align: center;
+        }
+
+        .brand-logo {
+            font-size: 2.2rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #00c6ff, #0072ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 5px;
+        }
+
+        .form-label {
+            font-size: 0.85rem;
+            opacity: 0.7;
+            margin-bottom: 5px;
+            display: block;
+            text-align: left;
+        }
+
+        .form-control {
+            background: rgba(255, 255, 255, 0.05) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #ffffff !important;
+            border-radius: 12px;
+            padding: 12px 15px;
+            margin-bottom: 18px;
+            transition: 0.3s ease-in-out;
+        }
+
+        .form-control:focus {
+            background: rgba(255, 255, 255, 0.1) !important;
+            border-color: #00c6ff;
+            box-shadow: 0 0 15px rgba(0, 198, 255, 0.2);
+            outline: none;
+        }
+
+        .btn-register {
+            background: linear-gradient(45deg, #00c6ff, #0072ff);
+            border: none;
+            color: white;
+            font-weight: 700;
+            padding: 14px;
+            border-radius: 12px;
+            width: 100%;
+            margin-top: 10px;
+            transition: 0.3s;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-register:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 198, 255, 0.3);
+            color: white;
+        }
+
+        .login-link {
+            text-decoration: none;
+            color: #00c6ff;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+
+        .login-link:hover {
+            color: #ffffff;
+        }
+
+        .benefit-tag {
+            background: rgba(0, 198, 255, 0.1);
+            color: #00c6ff;
+            font-size: 0.75rem;
+            padding: 5px 12px;
+            border-radius: 50px;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="register-card">
+    <div class="brand-logo">GigSetu</div>
+    <div class="benefit-tag">🚀 Join 5,000+ Gig Workers</div>
+    <h4 class="fw-bold mb-4">Create Your Account</h4>
+
+    <form action="/register" method="POST">
+        <div class="mb-1 text-start">
+            <label class="form-label">Full Name</label>
+            <input type="text" name="name" class="form-control shadow-none" placeholder="John Doe" required>
+        </div>
+
+        <div class="mb-1 text-start">
+            <label class="form-label">Email Address</label>
+            <input type="email" name="email" class="form-control shadow-none" placeholder="john@example.com" required>
+        </div>
+
+        <div class="mb-1 text-start">
+            <label class="form-label">Password</label>
+            <input type="password" name="password" class="form-control shadow-none" placeholder="Create a strong password" required>
+        </div>
+
+        <button type="submit" class="btn btn-register">
+            Get Started <i class="bi bi-rocket-takeoff ms-2"></i>
+        </button>
+    </form>
+
+    <hr class="my-4 opacity-10">
+
+    <p class="small mb-0 opacity-75">
+        Already have an account? 
+        <a href="/login" class="login-link">Sign In</a>
+    </p>
+</div>
+
+</body>
+</html>
