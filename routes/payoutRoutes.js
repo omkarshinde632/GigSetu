@@ -40,8 +40,16 @@ router.post("/create-order/:planId", isAuthenticated, async (req, res) => {
 
 
 router.post("/verify-payment", isAuthenticated, async (req, res) => {
-
   try {
+
+    const sessionUser = await User.findById(req.session.userId);
+    if (!sessionUser) {
+      return res.status(401).send("User not found");
+    }
+
+    if (sessionUser.verificationStatus !== "verified") {
+      return res.status(403).send("User not verified");
+    }
 
     const {
       razorpay_order_id,
@@ -62,10 +70,22 @@ router.post("/verify-payment", isAuthenticated, async (req, res) => {
     }
 
     const plan = await WeeklyPayoutPlan.findById(planId);
-    if (!plan) return res.status(404).send("Plan not found");
+    if (!plan) {
+      return res.status(404).send("Plan not found");
+    }
+
+    if (plan.user.toString() !== req.session.userId) {
+      return res.status(403).send("Unauthorized plan access");
+    }
+
+    if (plan.status !== "pending_payment") {
+      return res.status(400).send("Plan already activated");
+    }
 
     const pool = await LiquidityPool.findOne();
-    if (!pool) return res.status(500).send("Liquidity pool missing");
+    if (!pool) {
+      return res.status(500).send("Liquidity pool missing");
+    }
 
     if (pool.totalCapital < plan.weeklyAmount) {
       return res.status(400).send("Insufficient liquidity pool");
@@ -77,8 +97,11 @@ router.post("/verify-payment", isAuthenticated, async (req, res) => {
 
     pool.totalCapital -= plan.weeklyAmount;
 
-    const user = await User.findById(plan.user);
-    const invoiceData = generateInvoice(plan, user, razorpay_payment_id);
+    const invoiceData = generateInvoice(
+      plan,
+      sessionUser,
+      razorpay_payment_id
+    );
 
     plan.invoiceId = invoiceData.invoiceId;
     plan.invoiceFile = invoiceData.fileName;
@@ -93,7 +116,6 @@ router.post("/verify-payment", isAuthenticated, async (req, res) => {
     res.status(500).send("Payment verification error");
   }
 });
-
 router.get("/invoice/:planId", isAuthenticated, async (req, res) => {
 
   try {

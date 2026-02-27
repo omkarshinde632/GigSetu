@@ -1,9 +1,17 @@
 const router = require("express").Router();
 const { isAuthenticated } = require("../middleware/authMiddleware");
 const WeeklyPayoutPlan = require("../models/WeeklyPayoutPlan");
-
+const User = require("../models/User");
 
 router.post("/apply", isAuthenticated, async (req, res) => {
+
+const user = await User.findById(req.session.userId);
+
+  if (!user) return res.redirect("/login");
+
+  if (user.verificationStatus !== "verified") {
+    return res.send("❌ You must complete verification before activating Daily Payout.");
+  }
 
   const { weeklyAmount } = req.body;
 

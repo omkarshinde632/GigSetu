@@ -103,9 +103,69 @@
             width: 30px; background: var(--primary-grad);
             border-radius: 8px 8px 0 0; transition: 0.5s;
         }
+        .weeklyBtn{
+            background-color: #00c6ff;
+            height: 40px;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            color: white;
+            margin: 0;
+            padding-top: 80px; 
+        }
+
+        .navbar {
+            backdrop-filter: blur(12px);
+            background: rgba(255,255,255,0.08);
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg,#00c6ff,#0072ff);
+            border: none;
+        }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        .section {
+            padding: 80px 0;
+        }
+
+        .footer {
+            background: rgba(0,0,0,0.5);
+            padding: 30px;
+            text-align: center;
+            margin-top: 60px;
+        }
+
+        .page-container {
+            min-height: calc(100vh - 160px);
+        }
     </style>
 </head>
 <body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+  <div class="container">
+    <a class="navbar-brand fw-bold" href="/">GigSetu</a>
+
+    <div>
+        <% if (!user) { %>
+            <a href="/login" class="btn btn-outline-light me-2">Login</a>
+            <a href="/register" class="btn btn-primary">Get Started</a>
+        <% } else { %>
+            <a href="/logout" class="btn btn-danger">Logout</a>
+        <% } %>
+    </div>
+  </div>
+</nav>
+
+<br>
+<br>
+<br>
+<br>
 
 <div class="container dashboard-container">
     
@@ -114,7 +174,6 @@
             <h2 class="mb-0">Welcome, <span class="text-gradient"><%= user.name %></span></h2>
             <p class="opacity-75">Your Financial Command Center</p>
         </div>
-        <a href="/logout" class="btn btn-outline-danger btn-sm rounded-pill px-4">Logout</a>
         <% if (!user.isPayoutLinked) { %>
                     <a href="/payout/link" class="btn btn-warning fw-bold">⚠️ Link Payout Method</a>
                 <% } %>
@@ -173,11 +232,15 @@
 
 <h3>⚡ Instant Daily Payout (T+0)</h3>
 
-<form method="POST" action="/weekly-payout/apply">
-    <input type="number" name="weeklyAmount" placeholder="Enter Weekly Earnings (₹)" required>
-    <button type="submit">Apply for Daily Payout Plan</button>
-</form>
+<form method="POST" action="/weekly-payout/apply"><br>
 
+    <input type="number" name="weeklyAmount" placeholder="Enter Weekly Earnings" required>
+    &nbsp;&nbsp;&nbsp;
+    
+                        <button type="submit" class="btn btn-gig w-40">Sync</button>
+                   
+</form>
+<hr>
 <% if (payoutPlans && payoutPlans.length > 0) { %>
 
   <h4>Your Payout Plans</h4>
@@ -244,11 +307,10 @@
     </div>
 
     <% 
-        // 1. Separate Active vs History
         const activeLoans = loans.filter(l => l.status === 'active' || l.status === 'approved');
         const historyLoans = loans.filter(l => l.status === 'completed' || l.status === 'rejected');
         
-        // 2. Decide what to show in the main view
+    
         let primaryDisplay = activeLoans.length > 0 ? activeLoans : loans.slice(0, 2);
     %>
 
@@ -438,4 +500,5 @@ async function payFee(planId, amount) {
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
 </body>
+<%- include("partials/footer") %>
 </html>

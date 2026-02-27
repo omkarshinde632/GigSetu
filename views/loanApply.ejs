@@ -92,6 +92,8 @@
 </head>
 <body>
 
+    <%- include("partials/header", { title: "Home - GigSetu" }) %>
+
 <div class="container">
     <% if (!eligibility.eligible) { %>
         <div class="error-container glass-card">
@@ -224,4 +226,5 @@
 </script>
 
 </body>
+<%- include("partials/footer") %>
 </html>
