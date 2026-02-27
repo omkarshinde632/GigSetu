@@ -4,7 +4,7 @@ const liquidityPoolSchema = new mongoose.Schema({
 
   totalCapital: {
     type: Number,
-    default: 100000   // Start with ₹1 lakh demo capital
+    default: 100000
   }
 
 });

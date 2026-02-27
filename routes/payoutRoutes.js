@@ -1,27 +1,65 @@
 const router = require("express").Router();
+const razorpay = require("../utils/razorpay");
+const WeeklyPayoutPlan = require("../models/WeeklyPayoutPlan");
 const { isAuthenticated } = require("../middleware/authMiddleware");
-const User = require("../models/User");
 
-router.get("/link", isAuthenticated, async (req, res) => {
-  const user = await User.findById(req.session.userId);
-  res.render("linkPayout", { user });
+// Create Razorpay Order
+router.post("/create-order/:planId", isAuthenticated, async (req, res) => {
+
+  const plan = await WeeklyPayoutPlan.findById(req.params.planId);
+
+  if (!plan) return res.status(404).send("Plan not found");
+
+  const options = {
+    amount: plan.processingFee * 100, // in paise
+    currency: "INR",
+    receipt: "receipt_" + Date.now()
+  };
+
+  const order = await razorpay.orders.create(options);
+
+  res.json({
+    orderId: order.id,
+    amount: options.amount,
+    key: process.env.RAZORPAY_KEY_ID
+  });
 });
 
-router.post("/link", isAuthenticated, async (req, res) => {
-  const { upiId, accountNumber, ifsc, bankName } = req.body;
+const crypto = require("crypto");
+const LiquidityPool = require("../models/LiquidityPool");
 
-  const user = await User.findById(req.session.userId);
+router.post("/verify-payment", isAuthenticated, async (req, res) => {
 
-  if (upiId) {
-    user.upiId = upiId;
-  } else if (accountNumber && ifsc && bankName) {
-    user.bankDetails = { accountNumber, ifsc, bankName };
+  const { razorpay_order_id, razorpay_payment_id, razorpay_signature, planId } = req.body;
+
+  const body = razorpay_order_id + "|" + razorpay_payment_id;
+
+  const expectedSignature = crypto
+    .createHmac("sha256", process.env.RAZORPAY_SECRET)
+    .update(body.toString())
+    .digest("hex");
+
+  if (expectedSignature !== razorpay_signature) {
+    return res.status(400).send("Payment verification failed");
   }
 
-  user.isPayoutLinked = true;
-  await user.save();
+  const plan = await WeeklyPayoutPlan.findById(planId);
+  const pool = await LiquidityPool.findOne();
 
-  res.redirect("/dashboard");
+  // Check liquidity
+  if (pool.totalCapital < plan.weeklyAmount) {
+    return res.send("Insufficient liquidity pool");
+  }
+
+  plan.status = "active";
+  plan.startDate = new Date();
+
+  pool.totalCapital -= plan.weeklyAmount;
+
+  await plan.save();
+  await pool.save();
+
+  res.json({ success: true });
 });
 
 module.exports = router;

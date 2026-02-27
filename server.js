@@ -58,6 +58,88 @@ app.use(async (req, res, next) => {
 
 app.use("/", require("./routes/authRoutes"));
 app.use("/dashboard", require("./routes/dashboardRoutes"));
+app.use("/earnings", require("./routes/earningRoutes"));
+app.use("/verify", require("./routes/verificationRoutes"));
+app.use("/admin", require("./routes/adminRoutes"));
+
+app.use("/loan", require("./routes/loanRoutes"));
+app.use("/repayment", require("./routes/repaymentRoutes"));
+app.use("/ai", require("./routes/aiRoutes"));
+
+const { runPenaltyCheck } = require("./utils/penaltyEngine");
+app.use("/expenses", require("./routes/expenseRoutes"));
+app.use("/payout", require("./routes/payoutRoutes"));
+app.use("/insurance", require("./routes/insuranceRoutes"));
+
+
+const bcrypt = require("bcryptjs");
+
+const createAdmin = async () => {
+    const adminExists = await User.findOne({ email: "admin@gigsetu.com" });
+
+    if (!adminExists) {
+        const hashedPassword = await bcrypt.hash("admin123", 10);
+
+        await User.create({
+            name: "Super Admin",
+            email: "admin@gigsetu.com",
+            password: hashedPassword,
+            role: "admin",
+            verificationStatus: "verified",
+            gigScore: 100
+        });
+
+        console.log("Admin created: admin@gigsetu.com / admin123");
+    }
+};
+
+createAdmin();
+
+const LiquidityPool = require("./models/LiquidityPool");
+
+async function initPool() {
+  const existing = await LiquidityPool.findOne();
+  if (!existing) {
+    await LiquidityPool.create({ totalCapital: 100000 });
+    console.log("Liquidity Pool Initialized");
+  }
+}
+
+initPool();
+
+const cron = require("node-cron");
+const WeeklyPayoutPlan = require("./models/WeeklyPayoutPlan");
+
+cron.schedule("0 0 * * *", async () => {
+  console.log("Running daily payout release...");
+
+  const activePlans = await WeeklyPayoutPlan.find({ status: "active" }).populate("user");
+
+  for (let plan of activePlans) {
+
+    if (plan.daysReleased >= 7) {
+      plan.status = "completed";
+      await plan.save();
+      continue;
+    }
+
+    const user = plan.user;
+
+    user.walletBalance += plan.dailyAmount;
+    plan.daysReleased += 1;
+
+    await user.save();
+    await plan.save();
+  }
+});
+
+const weeklyPayoutRoutes = require("./routes/weeklyPayoutRoutes");
+app.use("/weekly-payout", weeklyPayoutRoutes);
+
+setInterval(() => {
+  runPenaltyCheck();
+}, 60 * 1000);
+
 
 const PORT = process.env.PORT || 3000;
 

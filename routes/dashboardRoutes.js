@@ -1,9 +1,11 @@
 const router = require("express").Router();
 const { isAuthenticated } = require("../middleware/authMiddleware");
+
 const Loan = require("../models/Loan");
 const User = require("../models/User");
 const Expense = require("../models/Expense");
 const Earning = require("../models/Earnings");
+const WeeklyPayoutPlan = require("../models/WeeklyPayoutPlan");
 
 const TAX_RATE = 0.05;
 const DEDUCTIBLE_CATEGORIES = ["fuel", "repair", "rent", "mobile"];
@@ -13,13 +15,21 @@ router.get("/", isAuthenticated, async (req, res) => {
     const user = await User.findById(req.session.userId);
     if (!user) return res.redirect("/login");
 
+    // ===========================
+    // LOANS
+    // ===========================
     const loans = await Loan.find({ user: user._id }).sort({ createdAt: -1 });
 
-  
+    // ===========================
+    // MONTH START
+    // ===========================
     const startOfMonth = new Date();
     startOfMonth.setDate(1);
     startOfMonth.setHours(0, 0, 0, 0);
 
+    // ===========================
+    // EXPENSES
+    // ===========================
     const expenses = await Expense.find({
       user: user._id,
       date: { $gte: startOfMonth }
@@ -49,6 +59,9 @@ router.get("/", isAuthenticated, async (req, res) => {
       amount: categoryMap[cat]
     }));
 
+    // ===========================
+    // EARNINGS
+    // ===========================
     const earnings = await Earning.find({
       user: user._id,
       date: { $gte: startOfMonth }
@@ -63,6 +76,16 @@ router.get("/", isAuthenticated, async (req, res) => {
     const taxableIncome = Math.max(0, monthlyIncome - deductibleTotal);
     const estimatedTax = Math.round(taxableIncome * TAX_RATE);
 
+    // ===========================
+    // WEEKLY PAYOUT PLANS (FIXED)
+    // ===========================
+    const payoutPlans = await WeeklyPayoutPlan.find({
+      user: user._id
+    }).sort({ createdAt: -1 });
+
+    // ===========================
+    // RENDER
+    // ===========================
     res.render("dashboard", {
       user,
       loans,
@@ -70,11 +93,11 @@ router.get("/", isAuthenticated, async (req, res) => {
       topCategory,
       potentialSavings,
       expenseBreakdown,
-
       monthlyIncome,
       deductibleTotal,
       taxableIncome,
-      estimatedTax
+      estimatedTax,
+      payoutPlans   // ✅ Now properly passed
     });
 
   } catch (err) {

@@ -2,107 +2,428 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>User Dashboard - GigSetu</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - GigSetu</title>
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        :root {
+            --glass: rgba(255, 255, 255, 0.08);
+            --glass-border: rgba(255, 255, 255, 0.12);
+            --primary-grad: linear-gradient(45deg, #00c6ff, #0072ff);
+            --accent-grad: linear-gradient(135deg, #7c3aed, #5b21b6);
+        }
 
-    <link rel="stylesheet" href="/css/dashboard.css">
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            color: white;
+            min-height: 100vh;
+            padding-top: 40px;
+            padding-bottom: 60px;
+        }
+
+        .dashboard-container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        
+        .glass-card {
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 25px;
+            margin-bottom: 24px;
+            transition: transform 0.3s ease;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(0, 198, 255, 0.3);
+        }
+
+        h2, h3, h4 { font-weight: 700; }
+        .text-gradient {
+            background: var(--primary-grad);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-box { text-align: center; padding: 15px; }
+        .stat-value { font-size: 24px; font-weight: 700; display: block; }
+        .stat-label { font-size: 12px; opacity: 0.7; text-transform: uppercase; letter-spacing: 1px; }
+
+        .btn-gig {
+            background: var(--primary-grad);
+            border: none; color: white; font-weight: 600;
+            border-radius: 12px; padding: 12px 24px;
+            transition: 0.3s;
+        }
+        .btn-gig:hover { opacity: 0.9; transform: scale(1.02); color: white; }
+
+        input, select {
+            background: rgba(0, 0, 0, 0.2) !important;
+            border: 1px solid var(--glass-border) !important;
+            color: white !important;
+            border-radius: 10px !important;
+            padding: 12px !important;
+        }
+
+        .emi-progress {
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px; height: 10px; overflow: hidden;
+        }
+        .emi-progress-bar {
+            background: linear-gradient(90deg, #00c6ff, #0072ff);
+            height: 100%;
+        }
+
+        #ai-messages {
+            height: 250px; overflow-y: auto;
+            background: rgba(0,0,0,0.3);
+            border-radius: 15px; padding: 15px;
+            margin-bottom: 15px; border: 1px solid var(--glass-border);
+        }
+        .ai-btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--glass-border);
+            color: white; border-radius: 20px;
+            padding: 5px 15px; font-size: 12px; transition: 0.2s;
+        }
+        .ai-btn:hover { background: var(--primary-grad); }
+
+        .bar-container {
+            display: flex; gap: 12px; align-items: flex-end; height: 120px; margin-top: 20px;
+        }
+        .bar {
+            width: 30px; background: var(--primary-grad);
+            border-radius: 8px 8px 0 0; transition: 0.5s;
+        }
+    </style>
 </head>
 <body>
 
-<div class="dashboard-wrapper">
+<div class="container dashboard-container">
+    
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <div>
+            <h2 class="mb-0">Welcome, <span class="text-gradient"><%= user.name %></span></h2>
+            <p class="opacity-75">Your Financial Command Center</p>
+        </div>
+        <a href="/logout" class="btn btn-outline-danger btn-sm rounded-pill px-4">Logout</a>
+        <% if (!user.isPayoutLinked) { %>
+                    <a href="/payout/link" class="btn btn-warning fw-bold">⚠️ Link Payout Method</a>
+                <% } %>
+    </div>
+     
 
-    <div class="sidebar">
-        <h4 class="logo">GigSetu</h4>
-        <ul>
-            <li class="active"><i class="fas fa-home"></i> Dashboard</li>
-            <li><i class="fas fa-briefcase"></i> My Gigs</li>
-            <li><i class="fas fa-file-alt"></i> Applications</li>
-            <li><i class="fas fa-wallet"></i> Earnings</li>
-            <li><i class="fas fa-user"></i> Profile</li>
-            <li><i class="fas fa-sign-out-alt"></i> Logout</li>
-        </ul>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="glass-card stat-box">
+                <span class="stat-label">Wallet Balance</span>
+                <span class="stat-value text-gradient">₹<%= user.walletBalance %></span>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="glass-card stat-box">
+                <span class="stat-label">Gig Stability Score</span>
+                <span class="stat-value text-info"><%= user.gigScore %>/100</span>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="glass-card stat-box">
+                <span class="stat-label">Account Status</span>
+                <% if (user.verificationStatus === "verified") { %>
+                    <span class="stat-value text-success" style="font-size: 18px;">🟢 Verified</span>
+                <% } else { %>
+                    <a href="/verify" class="text-warning text-decoration-none">🟡 Complete Verification</a>
+                <% } %>
+            </div>
+        </div>
     </div>
 
-    <div class="main-content">
+    <div class="row">
+        <div class="col-lg-7">
+            
+            <div class="glass-card">
+                <h4 class="mb-4">Sync Daily Earnings</h4>
+                <form action="/earnings/add" method="POST" class="row g-2">
+                    <div class="col-md-4">
+                        <select name="platform" class="form-select" required>
+                            <option value="Uber">Uber</option>
+                            <option value="Swiggy">Swiggy</option>
+                            <option value="Zomato">Zomato</option>
+                            <option value="Freelance">Freelance</option>
+                        </select>
+                    </div>
+                    <div class="col-md-5">
+                        <input type="number" name="amount" class="form-control" placeholder="Amount (₹)" required>
+                    </div>
+                    <div class="col-md-3">
+                        <button type="submit" class="btn btn-gig w-100">Sync</button>
+                    </div>
+                </form>
+            </div>
 
-        <div class="topbar d-flex justify-content-between align-items-center">
-            <h3>Welcome, <%= user.name %> 👋</h3>
-            <div>
-                <i class="fas fa-bell notification-icon"></i>
-                <img src="/images/user.png" class="profile-img">
+            <hr>
+
+<h3>⚡ Instant Daily Payout (T+0)</h3>
+
+<form method="POST" action="/weekly-payout/apply">
+    <input type="number" name="weeklyAmount" placeholder="Enter Weekly Earnings (₹)" required>
+    <button type="submit">Apply for Daily Payout Plan</button>
+</form>
+
+<% if (payoutPlans && payoutPlans.length > 0) { %>
+  <h4>Your Payout Plans</h4>
+
+  <% payoutPlans.forEach(plan => { %>
+    <div style="border:1px solid #ccc; padding:10px; margin-bottom:10px;">
+      <p>Weekly Amount: ₹<%= plan.weeklyAmount %></p>
+      <p>Daily Amount: ₹<%= plan.dailyAmount %></p>
+      <p>Status: <%= plan.status %></p>
+
+      <% if (plan.status === "pending_payment") { %>
+        <button onclick="payFee('<%= plan._id %>', <%= plan.processingFee %>)">
+          Pay Processing Fee ₹<%= plan.processingFee %>
+        </button>
+      <% } %>
+
+      <% if (plan.status === "active") { %>
+        <p>Days Released: <%= plan.daysReleased %> / 7</p>
+      <% } %>
+    </div>
+  <% }) %>
+<% } %>
+
+
+
+            <div class="glass-card" style="border-left: 4px solid #00c6ff;">
+                <div class="d-flex justify-content-between">
+                    <h4>🧾 Tax Insights</h4>
+                    <span class="badge bg-primary">Monthly</span>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-6">
+                        <p class="mb-1 opacity-75">Income</p>
+                        <h6>₹<%= monthlyIncome || 0 %></h6>
+                    </div>
+                    <div class="col-6">
+                        <p class="mb-1 opacity-75">Taxable</p>
+                        <h6>₹<%= taxableIncome || 0 %></h6>
+                    </div>
+                </div>
+                <div class="mt-3 p-3 rounded-4" style="background: rgba(0, 198, 255, 0.1);">
+                    <p class="mb-0 text-info fw-bold">Estimated Tax: ₹<%= estimatedTax || 0 %></p>
+                    <small class="opacity-50">Set this aside to avoid year-end stress.</small>
+                </div>
+            </div>
+
+            <div class="glass-card">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4>Loan Management</h4>
+        <% if (user.verificationStatus === "verified") { %>
+            <a href="/loan/apply" class="btn btn-sm btn-outline-light rounded-pill">New Loan</a>
+        <% } %>
+    </div>
+
+    <% 
+        // 1. Separate Active vs History
+        const activeLoans = loans.filter(l => l.status === 'active' || l.status === 'approved');
+        const historyLoans = loans.filter(l => l.status === 'completed' || l.status === 'rejected');
+        
+        // 2. Decide what to show in the main view
+        let primaryDisplay = activeLoans.length > 0 ? activeLoans : loans.slice(0, 2);
+    %>
+
+    <div class="loan-primary-view">
+        <p class="small text-uppercase opacity-50 mb-3" style="letter-spacing: 1px;">
+            <%= activeLoans.length > 0 ? '🔥 Active Loans' : '🕒 Recent Activity' %>
+        </p>
+        
+        <% if (primaryDisplay.length === 0) { %>
+            <div class="text-center py-4 opacity-50">
+                <p>No loan records found.</p>
+            </div>
+        <% } else { %>
+            <% primaryDisplay.forEach(loan => { 
+                const progress = Math.min(100, (loan.emisPaid / loan.tenure) * 100);
+            %>
+                <div class="p-3 rounded-4 mb-3" style="background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border);">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="fw-bold">₹<%= loan.amount %></span>
+                        <span class="badge <%= loan.status === 'active' ? 'bg-success' : 'bg-secondary' %>"><%= loan.status %></span>
+                    </div>
+                    <div class="emi-progress mb-2">
+                        <div class="emi-progress-bar" style="width:<%= progress %>%"></div>
+                    </div>
+                    <div class="d-flex justify-content-between small opacity-75">
+                        <span>EMI: <%= loan.emisPaid %>/<%= loan.tenure %></span>
+                        <span>Bal: ₹<%= loan.remainingBalance %></span>
+                    </div>
+                    <% if(loan.status === 'active') { %>
+                        <form method="POST" action="/repayment/pay/<%= loan._id %>" class="mt-3">
+                            <button class="btn btn-gig btn-sm w-100">Pay Next EMI</button>
+                        </form>
+                    <% } %>
+                </div>
+            <% }) %>
+        <% } %>
+    </div>
+
+    <% if (loans.length > 0) { %>
+        <div class="mt-4 border-top border-secondary pt-3">
+            <button class="btn btn-link text-info text-decoration-none w-100 p-0 d-flex justify-content-between align-items-center" 
+                    type="button" 
+                    data-bs-toggle="collapse" 
+                    data-bs-target="#loanHistoryContent">
+                <span class="fw-bold">Full Loan History</span>
+                <span class="opacity-50">View All ↓</span>
+            </button>
+            
+            <div class="collapse mt-3" id="loanHistoryContent">
+                <% loans.forEach(loan => { %>
+                    <div class="d-flex justify-content-between align-items-center p-2 mb-2 rounded-3" 
+                         style="background: rgba(0,0,0,0.2); font-size: 12px; border: 1px solid rgba(255,255,255,0.05);">
+                        <div>
+                            <span class="d-block fw-bold">₹<%= loan.amount %></span>
+                            <span class="opacity-50">Status: <%= loan.status %></span>
+                        </div>
+                        <div class="text-end opacity-75">
+                            <span><%= loan.tenure %> Months</span>
+                        </div>
+                    </div>
+                <% }) %>
             </div>
         </div>
+    <% } %>
+</div>
+</div>
 
-        <div class="row mt-4">
+<style>
+    .btn-link:focus { box-shadow: none; }
+    #loanHistory .badge { font-size: 10px; font-weight: 500; }
+    .collapse-transition { transition: all 0.3s ease-out; }
+</style>
 
-            <div class="col-md-3">
-                <div class="card stat-card">
-                    <h6>Active Gigs</h6>
-                    <h2><%= activeGigs.length %></h2>
+        <div class="col-lg-5">
+            
+            <div class="glass-card" style="background: rgba(15, 23, 42, 0.6);">
+                <h4 class="text-gradient">🤖 AI Assistant</h4>
+                <div id="ai-messages">
+                    <p class="text-info">Hi <%= user.name %>, how can I help with your finances today?</p>
+                </div>
+                <div class="d-flex flex-wrap gap-1 mb-3">
+                    <button onclick="quickAsk('Am I eligible for a loan?')" class="ai-btn">Eligibility</button>
+                    <button onclick="quickAsk('How is my financial health?')" class="ai-btn">Health Score</button>
+                </div>
+                <div class="input-group">
+                    <input id="ai-question" type="text" class="form-control" placeholder="Ask AI...">
+                    <button onclick="askAI()" class="btn btn-gig">Send</button>
                 </div>
             </div>
 
-            <div class="col-md-3">
-                <div class="card stat-card">
-                    <h6>Applications</h6>
-                    <h2><%= applications.length %></h2>
-                </div>
-            </div>
-
-            <div class="col-md-3">
-                <div class="card stat-card">
-                    <h6>Total Earnings</h6>
-                    <h2>₹ <%= totalEarnings %></h2>
-                </div>
-            </div>
-
-            <div class="col-md-3">
-                <div class="card stat-card">
-                    <h6>Rating</h6>
-                    <h2><%= user.rating || 4.5 %></h2>
-                </div>
-            </div>
-
-        </div>
-
-        <!-- Active Gigs Section -->
-        <div class="card mt-4 p-4">
-            <h5 class="mb-3">Current Active Gigs</h5>
-
-            <% if(activeGigs.length === 0){ %>
-                <p class="text-muted">No active gigs right now.</p>
-            <% } else { %>
-
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>Gig Title</th>
-                            <th>Client</th>
-                            <th>Deadline</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <% activeGigs.forEach(gig => { %>
-                            <tr>
-                                <td><%= gig.title %></td>
-                                <td><%= gig.clientName %></td>
-                                <td><%= gig.deadline %></td>
-                                <td><span class="badge bg-success">In Progress</span></td>
-                            </tr>
+            <div class="glass-card">
+                <h4>💸 Spending Breakdown</h4>
+                <div class="bar-container">
+                    <% if (expenseBreakdown && expenseBreakdown.length > 0) { %>
+                        <% expenseBreakdown.forEach(item => { 
+                            const height = Math.min(100, Math.max(20, item.amount / 50)); 
+                        %>
+                            <div class="text-center">
+                                <div class="bar" style="height:<%= height %>px" title="₹<%= item.amount %>"></div>
+                                <small class="d-block mt-2 opacity-50" style="font-size: 10px;"><%= item.category %></small>
+                            </div>
                         <% }) %>
-                    </tbody>
-                </table>
+                    <% } else { %>
+                        <p class="opacity-50">No data found.</p>
+                    <% } %>
+                </div>
+                <div class="mt-4">
+                    <a href="/expenses" class="btn btn-outline-light w-100 rounded-pill">View All Expenses</a>
+                </div>
+            </div>
 
-            <% } %>
+            <div class="d-grid gap-2">
+                <a href="/insurance" class="btn btn-gig" style="background: var(--accent-grad);">🛡️ Insurance Portal</a>
+                <% if (!user.isPayoutLinked) { %>
+                    <a href="/payout/link" class="btn btn-warning fw-bold">⚠️ Link Payout Method</a>
+                <% } %>
+            </div>
+
         </div>
-
     </div>
 </div>
+
+<script>
+    async function askAI() {
+        const input = document.getElementById("ai-question");
+        const msgBox = document.getElementById("ai-messages");
+        const question = input.value.trim();
+        if (!question) return;
+
+        msgBox.innerHTML += `<div class="mb-2 text-end"><span class="p-2 rounded-3 d-inline-block" style="background:rgba(255,255,255,0.1)">${question}</span></div>`;
+        input.value = "";
+
+        const res = await fetch("/ai/ask", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ question })
+        });
+        const data = await res.json();
+
+        msgBox.innerHTML += `<div class="mb-2"><span class="p-2 rounded-3 d-inline-block text-info" style="background:rgba(0,198,255,0.1)">🤖 ${data.reply}</span></div>`;
+        msgBox.scrollTop = msgBox.scrollHeight;
+    }
+
+    function quickAsk(text) {
+        document.getElementById("ai-question").value = text;
+        askAI();
+    }
+
+async function payFee(planId, amount) {
+
+  const res = await fetch("/payout/create-order/" + planId, {
+    method: "POST"
+  });
+
+  const data = await res.json();
+
+  const options = {
+    key: data.key,
+    amount: data.amount,
+    currency: "INR",
+    name: "GigSetu",
+    description: "Processing Fee",
+    order_id: data.orderId,
+
+    handler: async function (response) {
+
+      await fetch("/payout/verify-payment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...response,
+          planId
+        })
+      });
+
+      location.reload();
+    }
+  };
+
+  const rzp = new Razorpay(options);
+  rzp.open();
+}
+
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
 </body>
 </html>
