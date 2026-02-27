@@ -13,6 +13,8 @@ app.use("/uploads", express.static("uploads"));
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
+app.use("/dashboard", require("./routes/dashboardRoutes"));
+
 app.get('/', (req, res) => res.render('landing'));
 app.listen(PORT, () => console.log(`Server running at http://localhost:${PORT}/`));
 

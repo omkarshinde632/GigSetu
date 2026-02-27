@@ -1,0 +1,77 @@
+body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background-color: #f4f6f9;
+}
+
+.dashboard-wrapper {
+    display: flex;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 240px;
+    height: 100vh;
+    background: #111827;
+    color: white;
+    padding: 20px;
+    position: fixed;
+}
+
+.sidebar .logo {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+}
+
+.sidebar ul li {
+    padding: 12px;
+    cursor: pointer;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    transition: 0.3s;
+}
+
+.sidebar ul li:hover,
+.sidebar ul li.active {
+    background-color: #2563eb;
+}
+
+/* Main Content */
+.main-content {
+    margin-left: 240px;
+    padding: 25px;
+    width: 100%;
+}
+
+/* Topbar */
+.topbar {
+    background: white;
+    padding: 15px 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+.profile-img {
+    width: 40px;
+    border-radius: 50%;
+    margin-left: 15px;
+}
+
+/* Stat Cards */
+.stat-card {
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+    background: white;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+    transition: 0.3s;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+}
