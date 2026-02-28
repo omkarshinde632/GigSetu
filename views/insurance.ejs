@@ -5,7 +5,6 @@
   <title>Insurance - GigSetu</title>
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 
   <style>
@@ -16,140 +15,126 @@
       min-height: 100vh;
     }
 
-    .navbar {
-      backdrop-filter: blur(12px);
-      background: rgba(255,255,255,0.08);
-    }
-
     .glass-card {
       background: rgba(255,255,255,0.08);
       border-radius: 20px;
-      padding: 28px;
-      backdrop-filter: blur(10px);
+      padding: 24px;
+      backdrop-filter: blur(12px);
       border: 1px solid rgba(255,255,255,0.12);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
-      margin-bottom: 24px;
+      margin-bottom: 20px;
     }
 
-    .btn-primary {
-      background: linear-gradient(45deg,#00c6ff,#0072ff);
-      border: none;
+    input, textarea, select {
+      background: rgba(0,0,0,0.3) !important;
+      border: 1px solid rgba(255,255,255,0.2) !important;
+      color: white !important;
     }
 
-    .badge-status {
-      padding: 6px 12px;
+    .status-badge {
+      padding: 6px 14px;
       border-radius: 999px;
       font-size: 12px;
       font-weight: 600;
     }
 
-    .badge-pending { background: #f59e0b; }
-    .badge-approved { background: #22c55e; }
-    .badge-rejected { background: #ef4444; }
-
-    .footer {
-      background: rgba(0,0,0,0.5);
-      padding: 24px;
-      text-align: center;
-      margin-top: 60px;
-      opacity: 0.85;
-    }
+    .pending_review { background: #f59e0b; }
+    .approved { background: #22c55e; }
+    .rejected { background: #ef4444; }
   </style>
 </head>
 <body>
-
-
-<%- include("partials/header", { title: "Home - GigSetu" }) %>
 
 <div class="container py-5">
 
   <h2 class="fw-bold mb-4">🛡️ Micro-Insurance</h2>
 
   <% if (!user.insurance || !user.insurance.enrolled) { %>
-    <div class="glass-card">
-      <h4 class="mb-3">Enroll in Insurance</h4>
-      <p class="opacity-75 mb-3">
-        Protect yourself with affordable health or accident cover designed for gig workers.
-      </p>
 
-      <form method="POST" action="/insurance/enroll" class="row g-3">
-        <div class="col-md-6">
-          <select name="policyType" class="form-select" required>
-            <option value="" disabled selected>Select Policy Type</option>
-            <option value="health">Health Insurance</option>
-            <option value="accident">Accident Insurance</option>
-          </select>
-        </div>
-        <div class="col-md-6">
-          <button type="submit" class="btn btn-primary w-100">
-            Enroll Now
-          </button>
-        </div>
+    <div class="glass-card">
+      <h4>Enroll in Insurance</h4>
+      <form method="POST" action="/insurance/enroll">
+        <select name="policyType" class="form-select mb-3" required>
+          <option value="health">Health Insurance</option>
+          <option value="accident">Accident Insurance</option>
+        </select>
+        <button class="btn btn-primary">Enroll</button>
       </form>
     </div>
+
   <% } else { %>
+
     <div class="glass-card">
-      <h4 class="mb-2">✅ Insurance Active</h4>
-      <p class="mb-1">Policy Type: <strong class="text-info"><%= user.insurance.policyType %></strong></p>
-      <p class="mb-1">Policy ID: <strong><%= user.insurance.policyId %></strong></p>
-      <p class="opacity-75">Enrolled on: <%= new Date(user.insurance.enrolledAt).toDateString() %></p>
+      <p>✅ Enrolled in <strong><%= user.insurance.policyType %></strong></p>
+      <p>Policy ID: <%= user.insurance.policyId %></p>
     </div>
 
+    <!-- APPLY CLAIM -->
     <div class="glass-card">
-      <h4 class="mb-3">Submit Insurance Claim</h4>
-      <form method="POST" action="/insurance/claim" enctype="multipart/form-data" class="row g-3">
-        <div class="col-12">
-          <textarea
-            name="reason"
-            class="form-control"
-            rows="4"
-            placeholder="Describe your issue / incident"
-            required
-          ></textarea>
-        </div>
-        <br><br>
+      <h4>📄 Apply for Insurance Claim</h4>
 
-          <label>Upload Hospital Document:</label>
-          <input type="file" name="document" required>>
-        <div class="col-12">
-          <button type="submit" class="btn btn-primary w-100">
-            Submit Claim
-          </button>
+      <form method="POST" action="/insurance/claim" enctype="multipart/form-data">
+
+        <div class="mb-3">
+          <label>Reason for Claim</label>
+          <textarea name="reason" class="form-control" required></textarea>
         </div>
+
+        <div class="mb-3">
+          <label>Requested Amount (₹)</label>
+          <input type="number" name="requestedAmount" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+          <label>Upload Hospital / Medical Document</label>
+          <input type="file" name="document" class="form-control" required>
+        </div>
+
+        <button class="btn btn-success">Submit Claim</button>
       </form>
     </div>
+
   <% } %>
 
-  <% if (typeof myClaims !== "undefined" && myClaims.length > 0) { %>
-    <div class="glass-card">
-      <h4 class="mb-3">📄 My Claims</h4>
+  <!-- MY CLAIMS -->
+  <% if (myClaims && myClaims.length > 0) { %>
 
-      <% myClaims.forEach(claim => { %>
-        <div class="d-flex justify-content-between align-items-center mb-3 p-3 rounded" style="background:rgba(255,255,255,0.06);">
-          <div>
-            <p class="mb-1"><strong><%= claim.policyType %></strong> claim</p>
-            <small class="opacity-75"><%= new Date(claim.createdAt).toDateString() %></small>
-          </div>
+    <h4 class="mt-5">🧾 My Claims</h4>
 
+    <% myClaims.forEach(claim => { %>
+      <div class="glass-card">
+
+        <div class="d-flex justify-content-between">
           <div>
-            <% if (claim.status === "pending") { %>
-              <span class="badge-status badge-pending">Pending</span>
-            <% } else if (claim.status === "approved") { %>
-              <span class="badge-status badge-approved">Approved ₹<%= claim.payoutAmount %></span>
-            <% } else { %>
-              <span class="badge-status badge-rejected">Rejected</span>
+            <p><strong>Policy:</strong> <%= claim.policyType %></p>
+            <p><strong>Reason:</strong> <%= claim.reason %></p>
+            <p><strong>Requested:</strong> ₹<%= claim.requestedAmount %></p>
+
+            <% if (claim.status === "approved") { %>
+              <p class="text-success">
+                💰 Approved Amount: ₹<%= claim.payoutAmount %>
+              </p>
+            <% } %>
+
+            <% if (claim.status === "rejected") { %>
+              <p class="text-danger">❌ Claim Rejected</p>
             <% } %>
           </div>
+
+          <div>
+            <span class="status-badge <%= claim.status %>">
+              <%= claim.status.replace("_", " ") %>
+            </span>
+          </div>
         </div>
-      <% }) %>
-    </div>
+
+      </div>
+    <% }) %>
+
   <% } %>
 
-  <a href="/dashboard" class="btn btn-outline-light mt-3">⬅ Back to Dashboard</a>
+  <a href="/dashboard" class="btn btn-outline-light mt-4">⬅ Back to Dashboard</a>
+
 </div>
-
-
-<%- include("partials/footer") %>
 
 </body>
 </html>

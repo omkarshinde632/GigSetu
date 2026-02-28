@@ -19,8 +19,13 @@ const insuranceClaimSchema = new mongoose.Schema({
     required: true
   },
 
+  requestedAmount: {
+    type: Number,
+    required: true
+  },
+
   document: {
-    type: String,  
+    type: String,
     required: true
   },
 

@@ -51,26 +51,41 @@ router.post("/enroll", isAuthenticated, async (req, res) => {
 
 router.post("/claim", isAuthenticated, upload.single("document"), async (req, res) => {
 
-  const user = await User.findById(req.session.userId);
+  try {
 
-  if (!user.insurance?.enrolled) {
-    return res.send("❌ Not enrolled in insurance.");
+    const user = await User.findById(req.session.userId);
+
+    if (!user.insurance?.enrolled) {
+      return res.send("Not enrolled in insurance.");
+    }
+
+    if (!req.file) {
+      return res.send("Hospital document required.");
+    }
+
+    const { reason, requestedAmount } = req.body;
+
+    if (!requestedAmount || requestedAmount <= 0) {
+      return res.send("Invalid requested amount.");
+    }
+
+    await InsuranceClaim.create({
+      user: user._id,
+      policyType: user.insurance.policyType,
+      reason,
+      requestedAmount,
+      document: req.file.filename,
+      status: "pending_review"
+    });
+
+    res.redirect("/insurance");
+
+  } catch (err) {
+    console.log("Claim Error:", err);
+    res.redirect("/insurance");
   }
-
-  if (!req.file) {
-    return res.send("Hospital document required.");
-  }
-
-  await InsuranceClaim.create({
-    user: user._id,
-    policyType: user.insurance.policyType,
-    reason: req.body.reason,
-    document: req.file.filename,
-    status: "pending_review"
-  });
-
-  res.redirect("/insurance");
 });
+
 
 router.get("/admin/claims", isAuthenticated, isAdmin, async (req, res) => {
   try {
@@ -86,15 +101,24 @@ router.get("/admin/claims", isAuthenticated, isAdmin, async (req, res) => {
 });
 
 router.post("/admin/claims/approve/:id", isAuthenticated, isAdmin, async (req, res) => {
-  try {
-    const claim = await InsuranceClaim.findById(req.params.id).populate("user");
-    if (!claim) return res.redirect("/insurance/admin/claims");
 
-    if (claim.status !== "pending") {
+  try {
+
+    const claim = await InsuranceClaim.findById(req.params.id).populate("user");
+
+    if (!claim) {
       return res.redirect("/insurance/admin/claims");
     }
 
-    const payoutAmount = claim.policyType === "accident" ? 3000 : 2000;
+    if (claim.status !== "pending_review") {
+      return res.redirect("/insurance/admin/claims");
+    }
+
+    const payoutAmount = Number(req.body.payoutAmount);
+
+    if (!payoutAmount || payoutAmount <= 0) {
+      return res.send("Invalid payout amount");
+    }
 
     claim.status = "approved";
     claim.payoutAmount = payoutAmount;
@@ -105,9 +129,12 @@ router.post("/admin/claims/approve/:id", isAuthenticated, isAdmin, async (req, r
     await user.save();
     await claim.save();
 
+    console.log("Wallet credited:", user.walletBalance);
+
     res.redirect("/insurance/admin/claims");
+
   } catch (err) {
-    console.log("Approve Claim Error:", err);
+    console.log("Insurance Approval Error:", err);
     res.redirect("/insurance/admin/claims");
   }
 });
