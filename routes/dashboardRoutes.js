@@ -83,8 +83,11 @@ router.get("/", isAuthenticated, async (req, res) => {
     });
 
   } catch (err) {
-    console.log("Dashboard Error:", err);
-    res.redirect("/login");
+    return res.status(403).render("error", {
+  status: 403,
+  message: "Login Required",
+  redirect: "/login"
+});
   }
 });
 

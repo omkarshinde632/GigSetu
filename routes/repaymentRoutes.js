@@ -52,8 +52,11 @@ router.post("/pay/:loanId", isAuthenticated, async (req, res) => {
     res.redirect("/dashboard");
 
   } catch (err) {
-    console.log("Repayment Error:", err);
-    res.redirect("/dashboard");
+    return res.status(400).render("error", {
+  status: 400,
+  message: "Repayment Error",
+  redirect: "/dashboard"
+});
   }
 });
 

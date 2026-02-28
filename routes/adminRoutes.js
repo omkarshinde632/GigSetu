@@ -56,7 +56,11 @@ router.post("/approve/:id", isAuthenticated, isAdmin, async (req, res) => {
   if (!user) return res.redirect("/admin/verifications");
 
   if (!user.autoEligible) {
-    return res.send("❌ User is not eligible for verification.");
+    return res.status(403).render("error", {
+  status: 403,
+  message: "User is not eligible for verification.",
+  redirect: "/admin/dashboard"
+});
   }
 
   user.verificationStatus = "verified";
@@ -130,7 +134,11 @@ router.post("/loans/approve/:id", isAuthenticated, isAdmin, async (req, res) => 
   if (loan.riskTier === "HIGH") {
     const overrideReason = req.body.overrideReason;
     if (!overrideReason) {
-      return res.send("❌ High Risk Loan. Provide override reason.");
+      return res.status(403).render("error", {
+        status: 403,
+        message: "Payment verification failed.",
+        redirect: "/admin/dashboard"
+});
     }
 
     loan.adminOverride = true;

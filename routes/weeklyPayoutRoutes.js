@@ -10,7 +10,11 @@ const user = await User.findById(req.session.userId);
   if (!user) return res.redirect("/login");
 
   if (user.verificationStatus !== "verified") {
-    return res.send("❌ You must complete verification before activating Daily Payout.");
+        return res.status(403).render("error", {
+      status: 403,
+      message: "You must complete verification before activating Daily Payout.",
+      redirect: "/dashboard"
+});
   }
 
   const { weeklyAmount } = req.body;

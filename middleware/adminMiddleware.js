@@ -11,9 +11,12 @@ exports.isAdmin = async (req, res, next) => {
   console.log("Role:", user.role);
 
   if (!user || user.role !== "admin") {
-    console.log("Access denied");
-    return res.send("Access Denied");
-  }
+
+    return res.status(403).render("error", {
+      status: 403,
+      message: "Access Denied",
+      redirect: "/login"
+  })};
 
   next();
 };

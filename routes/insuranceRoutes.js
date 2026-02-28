@@ -24,8 +24,11 @@ router.get("/", isAuthenticated, async (req, res) => {
 
     res.render("insurance", { user, myClaims });
   } catch (err) {
-    console.log("Insurance Page Error:", err);
-    res.redirect("/dashboard");
+    return res.status(404).render("error", {
+    status: 404,
+    message: "Insurance Page Error.",
+    redirect: "/dashboard"
+});
   }
 });
 
@@ -44,10 +47,12 @@ router.post("/enroll", isAuthenticated, async (req, res) => {
     await user.save();
     res.redirect("/insurance");
   } catch (err) {
-    console.log("Insurance Enroll Error:", err);
-    res.redirect("/insurance");
-  }
-});
+    return res.status(500).render("error", {
+    status: 500,
+    message: "Insurance Enroll Error.",
+    redirect: "/insurance"
+  })
+}});
 
 router.post("/claim", isAuthenticated, upload.single("document"), async (req, res) => {
 
@@ -81,8 +86,11 @@ router.post("/claim", isAuthenticated, upload.single("document"), async (req, re
     res.redirect("/insurance");
 
   } catch (err) {
-    console.log("Claim Error:", err);
-    res.redirect("/insurance");
+    return res.status(400).render("error", {
+    status: 400,
+    message: "Claim Error.",
+    redirect: "/insurance"
+});
   }
 });
 
@@ -95,8 +103,11 @@ router.get("/admin/claims", isAuthenticated, isAdmin, async (req, res) => {
 
     res.render("adminClaims", { claims });
   } catch (err) {
-    console.log("Admin Claims Error:", err);
-    res.redirect("/admin/dashboard");
+    return res.status(400).render("error", {
+    status: 400,
+    message: "Admin Claims Error.",
+    redirect: "/admin/dashboard"
+});
   }
 });
 
@@ -134,8 +145,12 @@ router.post("/admin/claims/approve/:id", isAuthenticated, isAdmin, async (req, r
     res.redirect("/insurance/admin/claims");
 
   } catch (err) {
-    console.log("Insurance Approval Error:", err);
-    res.redirect("/insurance/admin/claims");
+
+    return res.status(500).render("error", {
+    status: 500,
+    message: "Insurance Approval Error:",
+    redirect: "/insurance/admin/claims"
+});
   }
 });
 
@@ -149,8 +164,12 @@ router.post("/admin/claims/reject/:id", isAuthenticated, isAdmin, async (req, re
 
     res.redirect("/insurance/admin/claims");
   } catch (err) {
-    console.log("Reject Claim Error:", err);
-    res.redirect("/insurance/admin/claims");
+
+    return res.status(400).render("error", {
+    status: 400,
+    message: "Reject Claim Error",
+    redirect: "/insurance/admin/claims"
+});
   }
 });
 

@@ -30,8 +30,11 @@ router.post(
       res.redirect("/dashboard");
 
     } catch (error) {
-      console.log("Verification Upload Error:", error);
-      res.redirect("/dashboard");
+      return res.status(500).render("error", {
+  status: 500,
+  message: "Verification Upload Error",
+  redirect: "/dashboard"
+});
     }
   }
 );

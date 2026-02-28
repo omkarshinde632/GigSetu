@@ -22,8 +22,12 @@ router.get("/apply", isAuthenticated, async (req, res) => {
     res.render("loanApply", { eligibility, user });
 
   } catch (error) {
-    console.log("Loan Eligibility Error:", error);
-    res.redirect("/dashboard");
+
+    return res.status(400).render("error", {
+    status: 400,
+    message: "Loan Eligibility Error",
+    redirect: "/dashboard"
+});
   }
 });
 
@@ -81,8 +85,12 @@ router.post("/apply", isAuthenticated, async (req, res) => {
     res.redirect("/dashboard");
 
   } catch (error) {
-    console.log("Loan Apply Error:", error);
-    res.redirect("/dashboard");
+    return res.status(400).render("error", {
+    status: 400,
+    message: "Loan Apply Error",
+    redirect: "/dashboard"
+});
+    
   }
 });
 

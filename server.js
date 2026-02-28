@@ -149,6 +149,25 @@ app.get("/", (req, res) => {
     res.render("landing");
 });
 
+app.use((req, res) => {
+  res.status(404).render("error", {
+    status: 404,
+    message: "Page not found.",
+    redirect: "/dashboard"
+  });
+});
+
+
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+
+  res.status(500).render("error", {
+    status: 500,
+    message: "Something went wrong. Please try again.",
+    redirect: "/dashboard"
+  });
+});
+
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
