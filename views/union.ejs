@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>GigSetu Collective</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<%- include("partials/header", { title: "Home - GigSetu" }) %>
+<body style="background:#0f2027;color:white;">
+
+<div class="container py-5">
+
+  <h2>🤝 GigSetu Collective</h2>
+  <p>Raise issues. Support others. Organize discussions.</p>
+
+  <div class="card p-3 mb-4 bg-dark">
+    <h5>Raise an Issue</h5>
+    <form method="POST" action="/union/post">
+      <input class="form-control mb-2" name="title" placeholder="Issue Title" required>
+      <textarea class="form-control mb-2" name="description" placeholder="Describe issue" required></textarea>
+      <select class="form-control mb-2" name="platform">
+        <option>General</option>
+        <option>Uber</option>
+        <option>Swiggy</option>
+        <option>Zomato</option>
+        <option>Freelance</option>
+      </select>
+      <button class="btn btn-primary">Post</button>
+    </form>
+  </div>
+
+  <h4>📌 Community Issues</h4>
+
+  <% posts.forEach(post => { %>
+    <div class="card p-3 mb-3 bg-secondary">
+      <h5><%= post.title %></h5>
+      <p><%= post.description %></p>
+      <small>Platform: <%= post.platform %></small><br>
+      <small>By: <%= post.user.name %></small><br>
+      <small>Status: <%= post.status %></small><br>
+
+      <form method="POST" action="/union/upvote/<%= post._id %>">
+        <button class="btn btn-light btn-sm mt-2">
+          👍 Support (<%= post.upvotes.length %>)
+        </button>
+      </form>
+    </div>
+  <% }) %>
+
+  <hr>
+
+  <h4>📅 Community Meetings</h4>
+
+  <div class="card p-3 mb-4 bg-dark">
+    <form method="POST" action="/union/meeting">
+      <input class="form-control mb-2" name="title" placeholder="Meeting Title" required>
+      <textarea class="form-control mb-2" name="description" placeholder="Meeting Agenda" required></textarea>
+      <input type="date" class="form-control mb-2" name="meetingDate" required>
+      <input class="form-control mb-2" name="location" placeholder="Location / Online Link">
+      <button class="btn btn-success">Schedule Meeting</button>
+    </form>
+  </div>
+
+  <% meetings.forEach(meeting => { %>
+    <div class="card p-3 mb-3 bg-secondary">
+      <h5><%= meeting.title %></h5>
+      <p><%= meeting.description %></p>
+      <small>Date: <%= meeting.meetingDate.toDateString() %></small><br>
+      <small>Location: <%= meeting.location %></small>
+    </div>
+  <% }) %>
+
+  <hr>
+
+  <h4>⚖️ Legal Awareness (India)</h4>
+  <div class="card p-3 bg-dark">
+    <ul>
+      <li>Gig workers fall under Code on Social Security, 2020</li>
+      <li>Platform aggregators must contribute to social security funds</li>
+      <li>You are entitled to accident insurance under certain schemes</li>
+      <li>Maintain proper income documentation for tax filing</li>
+    </ul>
+  </div>
+
+</div>
+
+</body>
+<%- include("partials/footer") %>
+</html>

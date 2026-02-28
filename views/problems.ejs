@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Challenges of the Gig Economy - GigSetu</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            color: white;
+            overflow-x: hidden;
+        }
+
+        .navbar {
+            backdrop-filter: blur(12px);
+            background: rgba(255,255,255,0.08);
+        }
+
+        .blog-header {
+            padding: 140px 0 60px;
+            text-align: center;
+        }
+
+        .blog-header h1 {
+            font-size: 42px;
+            font-weight: 700;
+            background: -webkit-linear-gradient(#00c6ff, #0072ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Problem Section Styling */
+        .problem-post {
+            background: rgba(255,255,255,0.05);
+            border-radius: 25px;
+            padding: 40px;
+            margin-bottom: 40px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .problem-img {
+            width: 100%;
+            height: 350px;
+            object-fit: cover;
+            border-radius: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .problem-tag {
+            background: rgba(255, 71, 71, 0.2);
+            color: #ff4747;
+            padding: 5px 15px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+
+        /* Solution Section Styling */
+        .solution-section {
+            background: rgba(0, 198, 255, 0.05);
+            padding: 80px 0;
+            border-radius: 50px 50px 0 0;
+        }
+
+        .solution-card {
+            background: rgba(255,255,255,0.08);
+            border-radius: 20px;
+            padding: 25px;
+            height: 100%;
+            border-left: 4px solid #00c6ff;
+            transition: 0.3s;
+        }
+
+        .solution-card:hover {
+            background: rgba(255,255,255,0.15);
+            transform: scale(1.02);
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg,#00c6ff,#0072ff);
+            border: none;
+            padding: 12px 30px;
+            border-radius: 10px;
+        }
+
+        .footer {
+            background: rgba(0,0,0,0.5);
+            padding: 30px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+  <div class="container">
+    <a class="navbar-brand fw-bold" href="/">GigSetu</a>
+    <div>
+        <a href="/login" class="btn btn-primary">Login</a>
+        <a href="/register" class="btn btn-primary">Get Started</a>
+        <a href="/landing" class="btn btn-primary">Home Page</a>
+    </div>
+  </div>
+</nav>
+
+<header class="blog-header">
+    <div class="container">
+        <h1>Understanding the Struggles <br> behind the "Gig"</h1>
+        <p class="lead opacity-75">Behind every 10-minute delivery is a story of financial uncertainty.</p>
+    </div>
+</header>
+
+<section class="container pb-5">
+    <div class="problem-post">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <img src="https://i0.wp.com/bankunderground.co.uk/wp-content/uploads/2023/01/What-does-the-rise-in-the-inflation-mean-for-financial-stability.jpg?ssl=1" alt="Financial Stress" class="problem-img">
+            </div>
+            <div class="col-lg-6">
+                <span class="problem-tag">Financial Instability</span>
+                <h3>The Income Rollercoaster</h3>
+                <p class="opacity-75">
+                    Unlike salaried employees, gig workers face "dry spells." A week of heavy rain or a personal illness doesn't just mean a day off—it means zero income. Traditional banks see this volatility as a "high risk," making it impossible for workers to get even small personal loans.
+                </p>
+                <p class="opacity-75">
+                    <em>"I have the money to pay back, but because my earnings fluctuate every day, the bank rejected my application for a bike loan."</em> — <strong>Rajesh, Delivery Partner</strong>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="problem-post">
+        <div class="row align-items-center flex-row-reverse">
+            <div class="col-lg-6">
+                <img src="https://media.telanganatoday.com/wp-content/uploads/2025/06/Kothagudem-accident.jpg" alt="Medical Emergency" class="problem-img">
+            </div>
+            <div class="col-lg-6">
+                <span class="problem-tag">Health & Safety</span>
+                <h3>The Cost of an Accident</h3>
+                <p class="opacity-75">
+                    Traffic, weather, and long hours increase the risk of accidents. Most gig workers operate without a safety net. A minor crash doesn't just damage the vehicle; it results in massive medical bills and a total loss of livelihood during the recovery period.
+                </p>
+                <ul class="opacity-75">
+                    <li>No employer-provided health insurance.</li>
+                    <li>Out-of-pocket expenses for vehicle repairs.</li>
+                    <li>No sick leave benefits.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="problem-post">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <img src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?q=80&w=1000&auto=format&fit=crop" alt="Taxation" class="problem-img">
+            </div>
+            <div class="col-lg-6">
+                <span class="problem-tag">Compliance Gap</span>
+                <h3>The Hidden Burden of Taxes</h3>
+                <p class="opacity-75">
+                    Managing GST, income tax, and fuel deductions is a nightmare for independent earners. Without a dedicated accountant, many gig workers overpay in taxes or face penalties simply because they didn't know how to track their expenses correctly.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="solution-section">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold">How GigSetu Bridges the Gap</h2>
+            <p class="opacity-75">We don't just provide loans; we build a financial ecosystem.</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="solution-card">
+                    <i class="fa-solid fa-chart-line fa-2x mb-3 text-info"></i>
+                    <h5>Alternative Scoring</h5>
+                    <p class="small opacity-75">We don't look at CIBIL alone. Our AI analyzes your gig platform earnings to create a <strong>Gig Score</strong> that proves your reliability.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="solution-card">
+                    <i class="fa-solid fa-kit-medical fa-2x mb-3 text-info"></i>
+                    <h5>Micro-Insurance</h5>
+                    <p class="small opacity-75">Get covered for as low as ₹5/day. Instant payouts for accidents so you can focus on recovery, not bills.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="solution-card">
+                    <i class="fa-solid fa-calculator fa-2x mb-3 text-info"></i>
+                    <h5>Smart Tax Filing</h5>
+                    <p class="small opacity-75">Our AI Assistant automatically categorizes your fuel and maintenance receipts, helping you save up to 30% on tax liabilities.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-5">
+            <a href="/register" class="btn btn-primary btn-lg">Join the Revolution</a>
+        </div>
+    </div>
+</section>
+
+<div class="footer">
+    <p>© 2026 GigSetu | Bridging the Financial Divide</p>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

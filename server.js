@@ -73,6 +73,13 @@ app.use("/insurance", require("./routes/insuranceRoutes"));
 
 app.use("/uploads", express.static("uploads"));
 
+const unionRoutes = require("./routes/unionRoutes");
+app.use("/union", unionRoutes);
+
+app.get('/problems', (req, res) => {
+    res.render('problems'); 
+});
+
 
 const bcrypt = require("bcryptjs");
 
