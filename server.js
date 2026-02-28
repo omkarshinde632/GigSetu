@@ -71,6 +71,8 @@ app.use("/expenses", require("./routes/expenseRoutes"));
 app.use("/payout", require("./routes/payoutRoutes"));
 app.use("/insurance", require("./routes/insuranceRoutes"));
 
+app.use("/uploads", express.static("uploads"));
+
 
 const bcrypt = require("bcryptjs");
 

@@ -20,7 +20,7 @@ const user = await User.findById(req.session.userId);
   }
 
   const dailyAmount = Math.floor(weeklyAmount / 7);
-  const processingFee = Math.floor(weeklyAmount * 0.02);
+  const processingFee = Math.floor(weeklyAmount * 0.01);
 
   await WeeklyPayoutPlan.create({
     user: req.session.userId,

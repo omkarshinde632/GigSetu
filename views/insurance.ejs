@@ -97,7 +97,7 @@
 
     <div class="glass-card">
       <h4 class="mb-3">Submit Insurance Claim</h4>
-      <form method="POST" action="/insurance/claim" class="row g-3">
+      <form method="POST" action="/insurance/claim" enctype="multipart/form-data" class="row g-3">
         <div class="col-12">
           <textarea
             name="reason"
@@ -107,6 +107,10 @@
             required
           ></textarea>
         </div>
+        <br><br>
+
+          <label>Upload Hospital Document:</label>
+          <input type="file" name="document" required>>
         <div class="col-12">
           <button type="submit" class="btn btn-primary w-100">
             Submit Claim

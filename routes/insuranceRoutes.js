@@ -3,6 +3,19 @@ const { isAuthenticated } = require("../middleware/authMiddleware");
 const { isAdmin } = require("../middleware/adminMiddleware");
 const User = require("../models/User");
 const InsuranceClaim = require("../models/InsuranceClaim");
+const multer = require("multer");
+const path = require("path");
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "uploads/insurance/");
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({ storage });
 
 router.get("/", isAuthenticated, async (req, res) => {
   try {
@@ -36,27 +49,27 @@ router.post("/enroll", isAuthenticated, async (req, res) => {
   }
 });
 
-router.post("/claim", isAuthenticated, async (req, res) => {
-  try {
-    const { reason } = req.body;
-    const user = await User.findById(req.session.userId);
+router.post("/claim", isAuthenticated, upload.single("document"), async (req, res) => {
 
-    if (!user.insurance?.enrolled) {
-      return res.send("❌ Not enrolled in insurance.");
-    }
+  const user = await User.findById(req.session.userId);
 
-    await InsuranceClaim.create({
-      user: user._id,
-      policyType: user.insurance.policyType,
-      reason,
-      status: "pending"
-    });
-
-    res.redirect("/insurance");
-  } catch (err) {
-    console.log("Insurance Claim Error:", err);
-    res.redirect("/insurance");
+  if (!user.insurance?.enrolled) {
+    return res.send("❌ Not enrolled in insurance.");
   }
+
+  if (!req.file) {
+    return res.send("Hospital document required.");
+  }
+
+  await InsuranceClaim.create({
+    user: user._id,
+    policyType: user.insurance.policyType,
+    reason: req.body.reason,
+    document: req.file.filename,
+    status: "pending_review"
+  });
+
+  res.redirect("/insurance");
 });
 
 router.get("/admin/claims", isAuthenticated, isAdmin, async (req, res) => {
@@ -113,5 +126,7 @@ router.post("/admin/claims/reject/:id", isAuthenticated, isAdmin, async (req, re
     res.redirect("/insurance/admin/claims");
   }
 });
+
+
 
 module.exports = router;
